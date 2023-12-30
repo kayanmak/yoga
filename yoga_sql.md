@@ -7,14 +7,17 @@ Dataset: https://www.kaggle.com/datasets/thedevastator/how-does-daily-yoga-impac
 
 
 ### Step 2 - Prepare
-```The 'index' and 'Date' columns are both unique keys to this table.```
+The 'index' and 'Date' columns are both unique keys to this table.
+``` sql
 SELECT 
 COUNT(DISTINCT index),
 COUNT(DISTINCT Date)
 FROM optimal-spark-392913.yoga.screen_time;
-```Both 'index' and 'Date' columns contain 28 distinct entries.``` 
+``` 
+Both 'index' and 'Date' columns contain 28 distinct entries.
 
-```Check if there is duplicated data in the 'index' or 'Date' column to ensure data integrity.```
+Check if there is duplicated data in the 'index' or 'Date' column to ensure data integrity.
+``` sql
 SELECT index, COUNT(*)
 FROM optimal-spark-392913.yoga.screen_time
 GROUP BY index
@@ -24,18 +27,22 @@ SELECT Date, COUNT(*)
 FROM optimal-spark-392913.yoga.screen_time
 GROUP BY Date
 HAVING COUNT(*) > 1;
-```There is no data to show for both columns, i.e. no duplicated data in both 'index' and 'Date' columns.```
+```
+There is no data to show for both columns, i.e. no duplicated data in both 'index' and 'Date' columns.
 
 ### Step 3 - Process
-```Check how many entries on each day of the week in this dataset.``` 
+Check how many entries on each day of the week in this dataset.
+``` sql
 SELECT Week_Day, COUNT(*)
 FROM optimal-spark-392913.yoga.screen_time
 GROUP BY Week_Day
 HAVING COUNT(*) > 1;
-```Among the 28 distinct entries, there are four entries for each day of the week. This shows the data was collected everyday during the indicated period of the study.```
+```
+Among the 28 distinct entries, there are four entries for each day of the week. This shows the data was collected everyday during the indicated period of the study.
 
 
-```Find out if there is prefered or unprefered weekday(s) for yoga during the week```
+Find out if there is prefered or unprefered weekday(s) for yoga during the week
+``` sql
 SELECT COUNT(Week_Day),
   CASE
     WHEN yoga = 1 THEN 'Yes'
@@ -44,8 +51,10 @@ SELECT COUNT(Week_Day),
   END AS Daily_yoga -- give an output column name
 FROM optimal-spark-392913.yoga.screen_time
 GROUP BY yoga
-```During 28 days of the data collection, the subject did yoga for 16 days whereas the other 12 days the subject did not do yoga.```
+```
+During 28 days of the data collection, the subject did yoga for 16 days whereas the other 12 days the subject did not do yoga.
 
+``` sql
 SELECT Week_Day,COUNT(Week_Day) AS frequency,
   CASE
     WHEN yoga = 1 THEN 'Yes'
@@ -65,10 +74,12 @@ ORDER BY
     WHEN Week_Day = 'Saturday' THEN 7
     ELSE 8 -- To handle any unexpected values
   END;
-```No weekday had zero yoga activity, nor any weekday always with yoga, i.e. the subject did not show particular weekday preference for yoga.```
+```
+No weekday had zero yoga activity, nor any weekday always with yoga, i.e. the subject did not show particular weekday preference for yoga.
 
 ### Step 4 - Analyze 
-```Investigate the relationship between day of the week and overall or category-specific screen time```
+1. Investigate the relationship between day of the week and overall or category-specific screen time: 
+``` sql
 SELECT Week_Day,
   AVG(Total_Screen_Time_) AS average_total_screen_time, 
   AVG(Social_Networking) AS average_social_networking,
@@ -92,7 +103,6 @@ ORDER BY
     WHEN Week_Day = 'Saturday' THEN 7
     ELSE 8 -- To handle any unexpected values
   END;
-
 ```
 Based on the average screen time (overall and category-specific), the overall screen time and screen time for social networking show the same pattern: the average time increases from Sunday to Monday, followed by a slight drop on Tuesday and then reaches the peak of the week on Wednesday. After that, the average fluctuates going down and up from Thursday to Saturday. 
 
@@ -105,10 +115,12 @@ Reading and entertainment both have the highest average screen time on Friday, w
 For creativity, the screen time shows the same level on Friday, Saturday and Sunday, whereas null value for the rest of the week. 
 
 Of note, among all categories, the highest screen time everyday throughout the week is spent on social networking. 
-```
 
 
-``` Investigate the impact of daily yoga on overall and category-specific screen time.```
+
+
+2. Investigate the impact of daily yoga on overall and category-specific screen time:
+``` sql
 SELECT
   CASE
     WHEN yoga = 1 THEN 'Yes'
@@ -137,10 +149,12 @@ In addition, the average screen time for categories social networking, reading, 
 The average screen time for productivity has a similar level with or without daily yoga. 
 
 On the other hand, the average screen time for creativity increases by 3.8 fold when the user had daily yoga  compared to no yoga (0.31 vs 0.08 average time).
-``` 
 
 
-```Investigate the impact of daily yoga and overall or category-specific screen time on different days of the week```
+
+
+3. Investigate the impact of daily yoga and overall or category-specific screen time on different days of the week: 
+``` sql
 SELECT 
   CASE
     WHEN yoga = 1 THEN 'Yes'
@@ -183,4 +197,3 @@ However, despite the decreasing trend for health and fitness screen time with da
 The average screen time for productivity has a similar level with or without daily yoga, but a higher average can be observed on five days of a week except Wednesdays and Saturdays. 
 
 Regarding the average creativity screen time on each day of the week, it can be observed that the average is higher with daily yoga on Fridays and Saturdays (0.0 vs 1.0). The average on Sundays remains the same regardless of daily yoga (0.5). Otherwise, the average remains at null value the rest of the week regardless of daily yoga. 
-```
